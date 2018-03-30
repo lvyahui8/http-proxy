@@ -1,0 +1,7 @@
+[
+    {
+        "inboundPath": "/app/test/get",
+        "method": "get",
+        "targetUri": "127.0.0.1:10024/test/get"
+    }
+]

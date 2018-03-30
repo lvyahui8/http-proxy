@@ -45,6 +45,7 @@ public class HttpProxyServer {
         } finally {
             workerGroup.shutdownGracefully();
             masterGroup.shutdownGracefully();
+            EntitysManager.getInstance().stopWatchThread();
         }
     }
 }
