@@ -6,8 +6,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.rtsp.RtspHeaderNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +32,6 @@ public class ProxyToServerHandler extends SimpleChannelInboundHandler<FullHttpRe
         //logger.info("channelActive");
         try
         {
-            request.headers().set(HttpHeaderNames.HOST,"127.0.0.1");
 
             ChannelFuture future = ctx.channel().writeAndFlush(request.retain());
             future.addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
@@ -48,7 +45,7 @@ public class ProxyToServerHandler extends SimpleChannelInboundHandler<FullHttpRe
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpResponse response) throws Exception {
         //logger.info("channelRead0");
         response.headers().set("Custom-Header","xxxxx");
-        response.headers().set(RtspHeaderNames.CONTENT_TYPE,"application/json");
+        //response.headers().set(RtspHeaderNames.CONTENT_TYPE,"application/json");
         clientContext.channel().writeAndFlush(response.retain()).addListener(ChannelFutureListener.CLOSE);
         //ctx.channel().closeFuture().addListener(ChannelFutureListener.CLOSE);
     }

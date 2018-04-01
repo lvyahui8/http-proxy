@@ -41,30 +41,28 @@ public class EntitysManager {
         if(watchThread != null){
             return;
         }
-        watchThread = new Thread(new Runnable() {
-            public void run() {
-                while(watch){
-                    File file = new File(ENTITYS_FILE);
-                    if(! file.exists()){
-                        logger.error("file not found");
+        watchThread = new Thread(() -> {
+            while(watch){
+                File file = new File(ENTITYS_FILE);
+                if(! file.exists()){
+                    logger.error("file not found");
+                    continue;
+                }
+
+                if(file.lastModified() > lastTime){
+                    try {
+                        loadFromEntitysJsonFile(new FileInputStream(ENTITYS_FILE));
+                    } catch (FileNotFoundException e) {
+                        logger.warn("file not found");
                         continue;
                     }
+                    lastTime =  file.lastModified();
+                }
 
-                    if(file.lastModified() > lastTime){
-                        try {
-                            loadFromEntitysJsonFile(new FileInputStream(ENTITYS_FILE));
-                        } catch (FileNotFoundException e) {
-                            logger.warn("file not found");
-                            continue;
-                        }
-                        lastTime =  file.lastModified();
-                    }
-
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException e) {
-                        logger.warn("sleep err",e);
-                    }
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    logger.warn("sleep err",e);
                 }
             }
         });
@@ -106,7 +104,7 @@ public class EntitysManager {
     private void loadFromEntitysJson(String entitysJson){
         Gson gson = new Gson();
         JsonArray items = gson.fromJson(entitysJson,JsonArray.class);
-        httpProxyMap = new HashMap<String, HttpProxyEntity>(items.size());
+        httpProxyMap = new HashMap<>(items.size());
         for(JsonElement e : items){
             HttpProxyEntity httpProxyEntity = gson.fromJson(e, HttpProxyEntity.class);
             httpProxyMap.put(

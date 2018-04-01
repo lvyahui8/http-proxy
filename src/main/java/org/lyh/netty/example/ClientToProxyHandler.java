@@ -48,16 +48,20 @@ public class ClientToProxyHandler extends SimpleChannelInboundHandler<FullHttpRe
         if(entity != null && entity.getTargetUri() != null
                 && entity.getTargetUri().trim().length() > 0){
             /* 找到可代理的对象 */
-            URL url = new URL(entity.getTargetUri().startsWith("http://")
+            URL targetUrl = new URL(entity.getTargetUri().startsWith("http://")
                     ? entity.getTargetUri() : HTTP_PROTOCOL + entity.getTargetUri());
 
             Bootstrap bootstrap = new Bootstrap();
             msg.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE);
+            msg.headers().set(HttpHeaderNames.HOST,
+                    targetUrl.getPort() < 0 ? targetUrl.getHost() : targetUrl.getHost() + ":" + targetUrl.getPort() );
+            msg.setUri(targetUrl.getPath());
+
             bootstrap.group(ctx.channel().eventLoop())
                     .channel(HttpProxyServer.isWindows ? NioSocketChannel.class : EpollSocketChannel.class)
                     .handler(new ProxyToServerChannelInitializer(ctx,msg.copy()));
 
-            bootstrap.connect(url.getHost(), url.getPort());
+            bootstrap.connect(targetUrl.getHost(), targetUrl.getPort() < 0 ? 80 : targetUrl.getPort());
         } else {
             /* 直接响应错误信息 */
             FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,HttpResponseStatus.NOT_FOUND);
