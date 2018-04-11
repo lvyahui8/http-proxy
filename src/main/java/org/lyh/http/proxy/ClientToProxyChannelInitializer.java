@@ -1,4 +1,4 @@
-package org.lyh.netty.example;
+package org.lyh.http.proxy;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;

@@ -1,4 +1,4 @@
-package org.lyh.netty.example;
+package org.lyh.http.proxy;
 
 /**
  * 一个标准的http协议地址格式：

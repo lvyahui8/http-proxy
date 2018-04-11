@@ -1,4 +1,4 @@
-package org.lyh.netty.example;
+package org.lyh.http.proxy;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;

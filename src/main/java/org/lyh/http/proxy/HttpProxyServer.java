@@ -1,4 +1,4 @@
-package org.lyh.netty.example;
+package org.lyh.http.proxy;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;

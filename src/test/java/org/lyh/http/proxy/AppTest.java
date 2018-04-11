@@ -1,4 +1,4 @@
-package org.lyh.netty.example;
+package org.lyh.http.proxy;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
