@@ -7,6 +7,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +22,8 @@ public class ClientToProxyHandler extends SimpleChannelInboundHandler<FullHttpRe
 
     private static final Logger logger = LoggerFactory.getLogger(ClientToProxyHandler.class);
     private static final String HTTP_PROTOCOL = "http://";
+
+    public static final String HTTP_SPL = "%0D%0A";
 
     private static EntitysManager entitysManager =  EntitysManager.getInstance();
 
@@ -47,6 +50,8 @@ public class ClientToProxyHandler extends SimpleChannelInboundHandler<FullHttpRe
         HttpProxyEntity entity = entitysManager.getEntity(uri.getPath(),msg.method().name());
         if(entity != null && entity.getTargetUri() != null
                 && entity.getTargetUri().trim().length() > 0){
+            /* 过滤可能的头攻击 */
+            checkHeaders(msg.headers());
             /* 找到可代理的对象 */
             URL url = new URL(entity.getTargetUri().startsWith("http://")
                     ? entity.getTargetUri() : HTTP_PROTOCOL + entity.getTargetUri());
@@ -68,4 +73,16 @@ public class ClientToProxyHandler extends SimpleChannelInboundHandler<FullHttpRe
             ctx.channel().writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
         }
     }
+
+    /*
+     * 过滤可能的头攻击
+     */
+    private void checkHeaders(HttpHeaders headers) {
+        headers.forEach(header -> {
+            if(header.getKey().contains(HTTP_SPL) || header.getValue().contains(HTTP_SPL)){
+                throw new StandardException(MsgCode.E_HEAD_ATTACK);
+            }
+        });
+    }
+
 }
