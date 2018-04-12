@@ -1,0 +1,7 @@
+GET http://localhost:10024/test/get4data
+
+###
+
+GET http://localhost:10024/test/get
+
+###
