@@ -56,13 +56,15 @@ public class ClientToProxyHandler extends SimpleChannelInboundHandler<FullHttpRe
             URL targetUrl = new URL(entity.getTargetUri().startsWith("http://")
                     ? entity.getTargetUri() : HTTP_PROTOCOL + entity.getTargetUri());
 
-            Bootstrap bootstrap = new Bootstrap();
+
             msg.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE);
             msg.headers().set(HttpHeaderNames.HOST,
                     targetUrl.getPort() < 0 ? targetUrl.getHost() : targetUrl.getHost() + ":" + targetUrl.getPort() );
             msg.setUri(targetUrl.getPath());
 
-            bootstrap.group(ctx.channel().eventLoop())
+            Bootstrap bootstrap = new Bootstrap();
+
+            bootstrap.group(EventLoopGroupMannager.getWorkerGroup())
                     .channel(HttpProxyServer.isWindows ? NioSocketChannel.class : EpollSocketChannel.class)
                     .handler(new ProxyToServerChannelInitializer(ctx,msg.copy()));
 

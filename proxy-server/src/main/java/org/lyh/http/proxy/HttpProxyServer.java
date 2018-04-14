@@ -3,10 +3,7 @@ package org.lyh.http.proxy;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
@@ -25,26 +22,14 @@ public class HttpProxyServer {
 
     public static boolean isWindows;
 
-
     public static void main(String[] args) throws InterruptedException {
-        EventLoopGroup masterGroup;
-        EventLoopGroup workerGroup;
-
 
         logger.info("entitys {}",EntitysManager.getInstance());
         isWindows = System.getProperty("os.name").toLowerCase().startsWith("win");
 
-        // 线程数不宜过大，当并发数和线程数超多一定值，线程间频繁切换反而会使得性能降低
-        if(isWindows){
-            masterGroup = new NioEventLoopGroup(1);
-            workerGroup = new NioEventLoopGroup(100);
-        } else {
-            masterGroup = new EpollEventLoopGroup(1);
-            workerGroup = new EpollEventLoopGroup(100);
-        }
         try{
             ServerBootstrap bootstrap = new ServerBootstrap();
-            bootstrap.group(masterGroup,workerGroup)
+            bootstrap.group(EventLoopGroupMannager.getMasterGroup(),EventLoopGroupMannager.getWorkerGroup())
                     .channel(isWindows ? NioServerSocketChannel.class : EpollServerSocketChannel.class)
                     .option(ChannelOption.SO_BACKLOG,2048)
                     .handler(new LoggingHandler())
@@ -53,9 +38,8 @@ public class HttpProxyServer {
             ChannelFuture future = bootstrap.bind(PORT).sync();
             future.channel().closeFuture().sync();
         } finally {
-            workerGroup.shutdownGracefully();
-            masterGroup.shutdownGracefully();
             EntitysManager.getInstance().stopWatchThread();
+            EventLoopGroupMannager.shutdownGracefully();
         }
     }
 }
