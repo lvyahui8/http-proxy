@@ -9,12 +9,18 @@ import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LoggingHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * @author lvyahui (lvyahui8@gmail.com,lvyahui8@126.com)
  * @since 2018/1/31 10:39
  */
 public class HttpProxyServer {
+
+    private static final Logger logger = LoggerFactory.getLogger(HttpProxyServer.class);
+
     public static int PORT = 7987;
 
     public static boolean isWindows;
@@ -23,7 +29,11 @@ public class HttpProxyServer {
     public static void main(String[] args) throws InterruptedException {
         EventLoopGroup masterGroup;
         EventLoopGroup workerGroup;
+
+
+        logger.info("entitys {}",EntitysManager.getInstance());
         isWindows = System.getProperty("os.name").toLowerCase().startsWith("win");
+
         // 线程数不宜过大，当并发数和线程数超多一定值，线程间频繁切换反而会使得性能降低
         if(isWindows){
             masterGroup = new NioEventLoopGroup(1);

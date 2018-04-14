@@ -28,6 +28,8 @@ public class ProxyToServerChannelInitializer extends ChannelInitializer<SocketCh
     protected void initChannel(SocketChannel ch) throws Exception {
         ch.pipeline().addLast("http-codec",new HttpClientCodec());
         ch.pipeline().addLast("http-aggregator",new HttpObjectAggregator(1024 * 1024));
-        ch.pipeline().addLast(new ProxyToServerHandler(ctx,request));
+        ProxyToServerHandler toServerHandler = new ProxyToServerHandler(ctx, request);
+        toServerHandler.addFilter(new DefaultProxyResponseFilter());
+        ch.pipeline().addLast(toServerHandler);
     }
 }

@@ -9,6 +9,9 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author lvyahui (lvyahui8@gmail.com,lvyahui8@126.com)
  * @since 2018/3/19 16:18
@@ -17,43 +20,49 @@ public class ProxyToServerHandler extends SimpleChannelInboundHandler<FullHttpRe
 
     private static final Logger logger = LoggerFactory.getLogger(ProxyToServerHandler.class);
 
-    private final ChannelHandlerContext clientContext;
+    private final ChannelHandlerContext client2ProxyCtx;
 
     private FullHttpRequest request;
 
+    private List<ProxyResponseFilter> responseFilters ;
 
-    public ProxyToServerHandler(ChannelHandlerContext ctx, FullHttpRequest request) {
-        this.clientContext = ctx;
+    public ProxyToServerHandler(ChannelHandlerContext client2ProxyCtx, FullHttpRequest request) {
+        this.client2ProxyCtx = client2ProxyCtx;
         this.request = request;
+        this.responseFilters = new ArrayList<>();
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         //logger.info("channelActive");
-        try
-        {
+        ChannelFuture future = ctx.channel().writeAndFlush(request.retain());
+        future.addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+    }
 
-            ChannelFuture future = ctx.channel().writeAndFlush(request.retain());
-            future.addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
-
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, FullHttpResponse response) throws Exception {
+        //logger.info("channelRead0");
+        try {
+            for (ProxyResponseFilter filter : this.responseFilters){
+                response = filter.filter(request,response);
+            }
+            client2ProxyCtx.channel().writeAndFlush(response.retain()).addListener(ChannelFutureListener.CLOSE);
         } finally {
             request.release();
         }
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, FullHttpResponse response) throws Exception {
-        //logger.info("channelRead0");
-        response.headers().set("Custom-Header","xxxxx");
-        //response.headers().set(RtspHeaderNames.CONTENT_TYPE,"application/json");
-        clientContext.channel().writeAndFlush(response.retain()).addListener(ChannelFutureListener.CLOSE);
-        //ctx.channel().closeFuture().addListener(ChannelFutureListener.CLOSE);
+    public void exceptionCaught(ChannelHandlerContext proxy2ServerCtx, Throwable cause) throws Exception {
+        logger.error("exceptionCaught",cause);
+        proxy2ServerCtx.close();
+        client2ProxyCtx.close();
+        request.release();
     }
 
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.error("exceptionCaught",cause);
-        ctx.close();
-        clientContext.close();
+
+    public synchronized ProxyToServerHandler addFilter(ProxyResponseFilter filter){
+        this.responseFilters.add(filter);
+        return this;
     }
 }

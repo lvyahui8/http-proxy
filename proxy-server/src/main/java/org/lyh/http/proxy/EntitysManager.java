@@ -124,4 +124,11 @@ public class EntitysManager {
                 httpProxyMap.get((inboundPath + KEY_SP + method).toLowerCase()) : null;
     }
 
+
+    @Override
+    public String toString() {
+        return "EntitysManager [" +
+                "lastTime=" + lastTime +
+                ']';
+    }
 }
