@@ -3,3 +3,4 @@
 target
 LOG_HOME_IS_UNDEFINED
 *.jar
+*.log
