@@ -27,6 +27,15 @@ public class ClientToProxyHandler extends SimpleChannelInboundHandler<FullHttpRe
 
     private static EntitysManager entitysManager =  EntitysManager.getInstance();
 
+    private  Bootstrap clientBootstrap;
+
+    public ClientToProxyHandler() {
+        clientBootstrap = new Bootstrap();
+
+        clientBootstrap.group(EventLoopGroupMannager.getWorkerGroup())
+                .channel(HttpProxyServer.isWindows ? NioSocketChannel.class : EpollSocketChannel.class);
+    }
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
        //logger.info("channelActive");
@@ -62,13 +71,8 @@ public class ClientToProxyHandler extends SimpleChannelInboundHandler<FullHttpRe
                     targetUrl.getPort() < 0 ? targetUrl.getHost() : targetUrl.getHost() + ":" + targetUrl.getPort() );
             msg.setUri(targetUrl.getPath());
 
-            Bootstrap bootstrap = new Bootstrap();
-
-            bootstrap.group(EventLoopGroupMannager.getWorkerGroup())
-                    .channel(HttpProxyServer.isWindows ? NioSocketChannel.class : EpollSocketChannel.class)
-                    .handler(new ProxyToServerChannelInitializer(ctx,msg.copy()));
-
-            bootstrap.connect(targetUrl.getHost(), targetUrl.getPort() < 0 ? 80 : targetUrl.getPort());
+            clientBootstrap.handler(new ProxyToServerChannelInitializer(ctx,msg.copy()));
+            clientBootstrap.connect(targetUrl.getHost(), targetUrl.getPort() < 0 ? 80 : targetUrl.getPort());
         } else {
             /* 直接响应错误信息 */
             FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,HttpResponseStatus.NOT_FOUND);
