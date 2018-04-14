@@ -17,6 +17,8 @@ public class ProxyToServerChannelInitializer extends ChannelInitializer<SocketCh
 
     private final ChannelHandlerContext ctx;
 
+    private static ProxyResponseFilter responseFilter = new DefaultProxyResponseFilter();
+
     private FullHttpRequest request;
 
     public ProxyToServerChannelInitializer(ChannelHandlerContext ctx, FullHttpRequest request) {
@@ -29,7 +31,7 @@ public class ProxyToServerChannelInitializer extends ChannelInitializer<SocketCh
         ch.pipeline().addLast("http-codec",new HttpClientCodec());
         ch.pipeline().addLast("http-aggregator",new HttpObjectAggregator(1024 * 1024));
         ProxyToServerHandler toServerHandler = new ProxyToServerHandler(ctx, request);
-        toServerHandler.addFilter(new DefaultProxyResponseFilter());
+        toServerHandler.addFilter(responseFilter);
         ch.pipeline().addLast(toServerHandler);
     }
 }
