@@ -34,14 +34,12 @@ public class ProxyToServerHandler extends SimpleChannelInboundHandler<FullHttpRe
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        //logger.info("channelActive");
         ChannelFuture future = ctx.channel().writeAndFlush(request.retain());
         future.addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpResponse response) throws Exception {
-        //logger.info("channelRead0");
         try {
             for (ProxyResponseFilter filter : this.responseFilters){
                 response = filter.filter(request,response);
@@ -54,12 +52,18 @@ public class ProxyToServerHandler extends SimpleChannelInboundHandler<FullHttpRe
 
     @Override
     public void exceptionCaught(ChannelHandlerContext proxy2ServerCtx, Throwable cause) throws Exception {
-        logger.error("exceptionCaught",cause);
-        proxy2ServerCtx.close();
-        client2ProxyCtx.close();
-        request.release();
+        try{
+            client2ProxyCtx.close();
+            request.release();
+        } finally {
+            proxy2ServerCtx.pipeline().fireExceptionCaught(cause);
+        }
     }
 
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        ctx.flush();
+    }
 
     public synchronized ProxyToServerHandler addFilter(ProxyResponseFilter filter){
         this.responseFilters.add(filter);

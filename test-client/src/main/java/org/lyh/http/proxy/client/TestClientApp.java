@@ -19,12 +19,28 @@ import static org.asynchttpclient.Dsl.asyncHttpClient;
 public class TestClientApp
 {
     private static final AsyncHttpClient asyncHttpClient = asyncHttpClient();
+    /*
+     * svr_cost_time    svr_thread  thread   request     cost_time  sucess_rate
+     * ~10ms            8           5        1000        105206 ms  100
+     * ~100ms           8           5        1000        105206 ms  100
+     * ~100ms           8           100      100         126783 ms  100
+     * ~100ms           200         100      100         17397 ms   100
+     * ~100ms           200         1000     100         103885 ms  100
+     */
     private static final String TEST_URL = "http://127.0.0.1:7987/app/test/get";
+    /*
+     * svr_cost_time    svr_thread  thread   request     cost_time  sucess_rate
+     * ~10ms            8           5        1000        105206 ms  100
+     * ~100ms           8           5        1000        102799 ms  100
+     * ~100ms           8           100      100         125928 ms  100
+     * ~100ms           200         100      100         13388 ms   100
+     * ~100ms           200         1000     100         53158 ms   100
+     */
 //    private static final String TEST_URL = "http://127.0.0.1:10024/test/get";
     private static final Logger  logger = LoggerFactory.getLogger(TestClientApp.class);
 
     public static void main( String[] args ) throws InterruptedException, IOException {
-        final int nThread = 5, nRequestInThread = 1000;
+        final int nThread = 2000, nRequestInThread = 10000;
         final AtomicInteger cnt = new AtomicInteger(0);
         final ExecutorService executorService = Executors.newFixedThreadPool(nThread);
         final CountDownLatch threadLatch = new CountDownLatch(nThread * nRequestInThread);
@@ -34,7 +50,7 @@ public class TestClientApp
                 @Override
                 public void run() {
                     for (int k = 0 ; k < nRequestInThread; k ++){
-                        asyncRequest();
+                        syncRequest();
                     }
                 }
 
@@ -48,7 +64,7 @@ public class TestClientApp
                             if(response != null && response.hasResponseStatus()
                                     && response.getStatusCode() == 200){
                                 cnt.incrementAndGet();
-                                // logger.info(response.getResponseBody());
+                                //logger.info(response.getResponseBody());
                             } else {
                                 logger.error("request failed. repsonse : {}",response);
                             }

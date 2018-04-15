@@ -18,6 +18,7 @@ final public class EventLoopGroupMannager {
 
     static {
         // 线程数不宜过大，当并发数和线程数超多一定值，线程间频繁切换反而会使得性能降低
+        // DefaultThreadFactory workerThreadFactory = new DefaultThreadFactory("proxy-worker", true);
         if(HttpProxyServer.isWindows){
             masterGroup = new NioEventLoopGroup(1);
             workerGroup = new NioEventLoopGroup(100);

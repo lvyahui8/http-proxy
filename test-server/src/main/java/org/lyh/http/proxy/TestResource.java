@@ -20,6 +20,11 @@ public class TestResource {
         ArrayList<String> strings = new ArrayList<String>();
         strings.add("1");
         strings.add("2");
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return strings;
     }
 

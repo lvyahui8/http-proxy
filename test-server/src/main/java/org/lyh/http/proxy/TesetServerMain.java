@@ -6,6 +6,8 @@ import com.sun.jersey.api.core.PackagesResourceConfig;
 import com.sun.jersey.api.core.ResourceConfig;
 import com.sun.jersey.api.json.JSONConfiguration;
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.grizzly.threadpool.GrizzlyExecutorService;
+import org.glassfish.grizzly.threadpool.ThreadPoolConfig;
 
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
@@ -35,7 +37,14 @@ public class TesetServerMain {
         ResourceConfig resourceConfig = new PackagesResourceConfig("org.lyh.http.proxy");
         resourceConfig.getContainerResponseFilters().add(new IOFilter());
         resourceConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING , Boolean.TRUE);
-        return GrizzlyServerFactory.createHttpServer(BASE_URI, resourceConfig);
+        HttpServer httpServer = GrizzlyServerFactory.createHttpServer(BASE_URI, resourceConfig);
+        ThreadPoolConfig threadConfig = ThreadPoolConfig.defaultConfig().setPoolName("test-server-worker-thread")
+                .setCorePoolSize(200)
+                .setMaxPoolSize(200);
+        GrizzlyExecutorService workerThreadPool = (GrizzlyExecutorService ) httpServer.getListeners()
+                .iterator().next().getTransport().getWorkerThreadPool();
+        workerThreadPool.reconfigure(threadConfig);
+        return httpServer;
     }
     
     public static void main(String[] args) throws IOException, InterruptedException {

@@ -32,6 +32,7 @@ public class ProxyToServerChannelInitializer extends ChannelInitializer<SocketCh
         ch.pipeline().addLast("http-aggregator",new HttpObjectAggregator(1024 * 1024));
         ProxyToServerHandler toServerHandler = new ProxyToServerHandler(ctx, request);
         toServerHandler.addFilter(responseFilter);
-        ch.pipeline().addLast(toServerHandler);
+        ch.pipeline().addLast("proxyToServerHandler",toServerHandler);
+        ch.pipeline().addLast("globalExceptionHandler",new GlobalExceptionHandler());
     }
 }

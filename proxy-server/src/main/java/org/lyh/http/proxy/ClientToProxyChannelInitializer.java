@@ -16,6 +16,9 @@ public class ClientToProxyChannelInitializer extends ChannelInitializer<SocketCh
     protected void initChannel(SocketChannel ch) throws Exception {
         ch.pipeline().addLast("http-codec",new HttpServerCodec());
         ch.pipeline().addLast("http-aggregator",new HttpObjectAggregator(1024 * 1024));
-        ch.pipeline().addLast("proxyServerHandler",new ClientToProxyHandler());
+        ClientToProxyHandler clientToProxyHandler = new ClientToProxyHandler();
+        clientToProxyHandler.addFilter(new AttackRequestFilter());
+        ch.pipeline().addLast("clientToProxyHandler",clientToProxyHandler);
+        ch.pipeline().addLast("globalExceptionHandler",new GlobalExceptionHandler());
     }
 }

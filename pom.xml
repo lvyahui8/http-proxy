@@ -11,6 +11,7 @@
         <module>test-server</module>
         <module>proxy-server</module>
         <module>test-client</module>
+        <module>proxy-sdk</module>
     </modules>
 
     <packaging>pom</packaging>
