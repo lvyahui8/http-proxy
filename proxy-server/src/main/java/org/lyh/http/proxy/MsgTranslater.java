@@ -33,7 +33,7 @@ public class MsgTranslater {
     }
 
     public static String getMsg(String msgCode){
-        return MSG.contains(msgCode) ? MSG.getProperty(msgCode) : DEFAULT_MSG;
+        return MSG.containsKey(msgCode) ? MSG.getProperty(msgCode) : DEFAULT_MSG;
     }
 
 }

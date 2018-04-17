@@ -6,3 +6,9 @@ GET http://localhost:7987/app/test/get
 GET http://localhost:7987/app/test/get?xxxx
 
 ###
+
+GET http://127.0.0.1:7987/app/test/get
+Host: localhost
+Location:http://baidu.com/1024%0d%0ASet-Cookie:+sid=666666
+
+###

@@ -2,6 +2,7 @@ package org.lyh.http.proxy;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -25,6 +26,7 @@ public class ClientToProxyHandler extends SimpleChannelInboundHandler<FullHttpRe
     private static final Logger logger = LoggerFactory.getLogger(ClientToProxyHandler.class);
     private static final String HTTP_PROTOCOL = "http://";
 
+    public static final int DEFAULT_CONNECT_TIMEOUT = 2000;
 
     private static EntitysManager entitysManager =  EntitysManager.getInstance();
 
@@ -37,6 +39,7 @@ public class ClientToProxyHandler extends SimpleChannelInboundHandler<FullHttpRe
 
         clientBootstrap.group(EventLoopGroupMannager.getWorkerGroup())
                 .channel(HttpProxyServer.isWindows ? NioSocketChannel.class : EpollSocketChannel.class);
+        clientBootstrap.option(ChannelOption.TCP_NODELAY,true);
 
         requestFilters  = new ArrayList<>();
     }
@@ -49,11 +52,6 @@ public class ClientToProxyHandler extends SimpleChannelInboundHandler<FullHttpRe
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
        //logger.info("channelActive");
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        ctx.pipeline().fireExceptionCaught(cause);
     }
 
     @Override
@@ -83,6 +81,7 @@ public class ClientToProxyHandler extends SimpleChannelInboundHandler<FullHttpRe
             msg.setUri(targetUrl.getPath());
 
             clientBootstrap.handler(new ProxyToServerChannelInitializer(ctx,msg.copy()));
+            clientBootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS,DEFAULT_CONNECT_TIMEOUT);
             clientBootstrap.connect(targetUrl.getHost(), targetUrl.getPort() < 0 ? 80 : targetUrl.getPort());
         } else {
 

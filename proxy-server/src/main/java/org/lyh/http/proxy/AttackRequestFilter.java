@@ -11,12 +11,12 @@ import io.netty.handler.codec.http.HttpHeaders;
  */
 public class AttackRequestFilter implements ProxyRequestFilter {
 
-    public static final String HTTP_SPL = "%0D%0A";
+    public static final String HTTP_SPL = "%0D%0A".toLowerCase();
 
     @Override
     public FullHttpRequest filter(FullHttpRequest request) {
         checkHeaders(request.headers());
-        return null;
+        return request;
     }
 
     /*
@@ -24,7 +24,7 @@ public class AttackRequestFilter implements ProxyRequestFilter {
      */
     private void checkHeaders(HttpHeaders headers) {
         headers.forEach(header -> {
-            if(header.getKey().contains(HTTP_SPL) || header.getValue().contains(HTTP_SPL)){
+            if(header.getKey().toLowerCase().contains(HTTP_SPL) || header.getValue().toLowerCase().contains(HTTP_SPL)){
                 throw new StandardException(MsgCode.E_HEAD_ATTACK);
             }
         });

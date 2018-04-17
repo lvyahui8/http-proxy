@@ -15,5 +15,7 @@ public class StandardException extends RuntimeException {
         this.msgCode = msgCode;
     }
 
-
+    public String getMsgCode() {
+        return msgCode;
+    }
 }
