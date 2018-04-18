@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * ClientToProxyHandler 只要处理客户端到proxy的入站事件，并且触发proxy到第三方server的出站操作即可
+ *
  * @author lvyahui (lvyahui8@gmail.com,lvyahui8@126.com)
  * @since 2018/1/31 10:43
  */
@@ -49,17 +51,6 @@ public class ClientToProxyHandler extends SimpleChannelInboundHandler<FullHttpRe
         return this;
     }
 
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-       //logger.info("channelActive");
-    }
-
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-       // logger.info( "channelReadComplete");
-        //ctx.flush();
-    }
-
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
         logger.info("ClientToProxyHandler.channelRead0");
         URI uri = new URI(msg.uri());
@@ -82,9 +73,10 @@ public class ClientToProxyHandler extends SimpleChannelInboundHandler<FullHttpRe
 
             clientBootstrap.handler(new ProxyToServerChannelInitializer(ctx,msg.copy()));
             clientBootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS,DEFAULT_CONNECT_TIMEOUT);
+            /* 触发客户端的出站操作，依次是connect -> write -> read -> close */
             clientBootstrap.connect(targetUrl.getHost(), targetUrl.getPort() < 0 ? 80 : targetUrl.getPort());
         } else {
-
+            throw new StandardException(MsgCode.E_ENTITY_NOT_FOUND);
         }
     }
 

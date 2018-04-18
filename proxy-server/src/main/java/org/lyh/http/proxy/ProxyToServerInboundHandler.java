@@ -1,6 +1,5 @@
 package org.lyh.http.proxy;
 
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -16,9 +15,9 @@ import java.util.List;
  * @author lvyahui (lvyahui8@gmail.com,lvyahui8@126.com)
  * @since 2018/3/19 16:18
  */
-public class ProxyToServerHandler extends SimpleChannelInboundHandler<FullHttpResponse> {
+public class ProxyToServerInboundHandler extends SimpleChannelInboundHandler<FullHttpResponse> {
 
-    private static final Logger logger = LoggerFactory.getLogger(ProxyToServerHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProxyToServerInboundHandler.class);
 
     private final ChannelHandlerContext client2ProxyCtx;
 
@@ -26,16 +25,10 @@ public class ProxyToServerHandler extends SimpleChannelInboundHandler<FullHttpRe
 
     private List<ProxyResponseFilter> responseFilters ;
 
-    public ProxyToServerHandler(ChannelHandlerContext client2ProxyCtx, FullHttpRequest request) {
+    public ProxyToServerInboundHandler(ChannelHandlerContext client2ProxyCtx, FullHttpRequest request) {
         this.client2ProxyCtx = client2ProxyCtx;
         this.request = request;
         this.responseFilters = new ArrayList<>();
-    }
-
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        ChannelFuture future = ctx.channel().writeAndFlush(request.retain());
-        future.addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
     }
 
     @Override
@@ -65,7 +58,7 @@ public class ProxyToServerHandler extends SimpleChannelInboundHandler<FullHttpRe
         ctx.flush();
     }
 
-    public synchronized ProxyToServerHandler addFilter(ProxyResponseFilter filter){
+    public synchronized ProxyToServerInboundHandler addFilter(ProxyResponseFilter filter){
         this.responseFilters.add(filter);
         return this;
     }

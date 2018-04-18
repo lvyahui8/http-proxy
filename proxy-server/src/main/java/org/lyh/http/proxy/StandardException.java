@@ -12,6 +12,7 @@ public class StandardException extends RuntimeException {
     private final String msgCode;
 
     public StandardException(String msgCode) {
+        super(MsgTranslater.getMsg(msgCode));
         this.msgCode = msgCode;
     }
 

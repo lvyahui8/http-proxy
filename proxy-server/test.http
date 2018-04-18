@@ -1,14 +1,22 @@
+# 转发测试
 GET http://localhost:7987/app/test/get
 
 ###
 
-# 异常测试
+# 参数测试
 GET http://localhost:7987/app/test/get?xxxx
 
 ###
 
+# 头攻击测试
 GET http://127.0.0.1:7987/app/test/get
 Host: localhost
 Location:http://baidu.com/1024%0d%0ASet-Cookie:+sid=666666
 
 ###
+
+# 404 测试
+GET http://127.0.0.1:7987/xxxxxx
+
+###
+
