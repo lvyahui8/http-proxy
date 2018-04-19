@@ -31,7 +31,7 @@ public class HttpProxyServer {
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(EventLoopGroupMannager.getMasterGroup(),EventLoopGroupMannager.getWorkerGroup())
                     .channel(isWindows ? NioServerSocketChannel.class : EpollServerSocketChannel.class)
-                    .option(ChannelOption.SO_BACKLOG,2048)
+                    .option(ChannelOption.SO_BACKLOG,4096)
                     .handler(new LoggingHandler())
                     .childHandler(new ClientToProxyChannelInitializer());
 

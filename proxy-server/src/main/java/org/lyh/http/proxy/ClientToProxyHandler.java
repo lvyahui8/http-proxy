@@ -52,7 +52,6 @@ public class ClientToProxyHandler extends SimpleChannelInboundHandler<FullHttpRe
     }
 
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
-        logger.info("ClientToProxyHandler.channelRead0");
         URI uri = new URI(msg.uri());
         HttpProxyEntity entity = entitysManager.getEntity(uri.getPath(),msg.method().name());
         if(entity != null && entity.getTargetUri() != null

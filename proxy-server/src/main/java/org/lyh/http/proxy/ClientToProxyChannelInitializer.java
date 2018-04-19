@@ -19,6 +19,6 @@ public class ClientToProxyChannelInitializer extends ChannelInitializer<SocketCh
         ClientToProxyHandler clientToProxyHandler = new ClientToProxyHandler();
         clientToProxyHandler.addFilter(new AttackRequestFilter());
         ch.pipeline().addLast("clientToProxyHandler",clientToProxyHandler);
-        ch.pipeline().addLast("globalExceptionHandler",new GlobalExceptionHandler());
+        ch.pipeline().addLast("globalExceptionHandler",new GlobalExceptionHandler(ch));
     }
 }

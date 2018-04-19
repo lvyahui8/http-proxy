@@ -31,13 +31,13 @@ public class ProxyToServerChannelInitializer extends ChannelInitializer<SocketCh
         /*
         *  对客户端而言，先出站，后入站
         * */
-        ProxyToServerOutboundHandler toServerOutboundHandler = new ProxyToServerOutboundHandler(ctx,request);
+        ProxyToServerOutboundHandler toServerOutboundHandler = new ProxyToServerOutboundHandler();
         ch.pipeline().addLast("proxyToServerOutboundHandler",toServerOutboundHandler);
         ch.pipeline().addLast("http-codec",new HttpClientCodec());
         ch.pipeline().addLast("http-aggregator",new HttpObjectAggregator(1024 * 1024));
         ProxyToServerInboundHandler toServerInboundHandler = new ProxyToServerInboundHandler(ctx, request);
         toServerInboundHandler.addFilter(responseFilter);
         ch.pipeline().addLast("proxyToServerInboundHandler",toServerInboundHandler);
-        ch.pipeline().addLast("globalExceptionHandler",new GlobalExceptionHandler());
+        ch.pipeline().addLast("globalExceptionHandler",new GlobalExceptionHandler(ctx.channel()));
     }
 }

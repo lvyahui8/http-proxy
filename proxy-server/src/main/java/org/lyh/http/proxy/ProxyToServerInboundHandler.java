@@ -1,5 +1,6 @@
 package org.lyh.http.proxy;
 
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -32,6 +33,19 @@ public class ProxyToServerInboundHandler extends SimpleChannelInboundHandler<Ful
     }
 
     @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        /*
+        * 与服务端的连接channel以建立并初始化完成，可以发送请求，此时，
+        * 消息将沿着客户端的出站链移动，直到送达真正的服务端
+        * */
+        ChannelFuture future = ctx.channel().writeAndFlush(request.retain());
+        /*
+        * 这行Listener代码也可以在ProxyToServerOutboundHandler@write中的promise添加
+        * */
+        future.addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+    }
+
+    @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpResponse response) throws Exception {
         try {
             for (ProxyResponseFilter filter : this.responseFilters){
@@ -46,10 +60,10 @@ public class ProxyToServerInboundHandler extends SimpleChannelInboundHandler<Ful
     @Override
     public void exceptionCaught(ChannelHandlerContext proxy2ServerCtx, Throwable cause) throws Exception {
         try{
-            client2ProxyCtx.close();
-            request.release();
+            proxy2ServerCtx.fireExceptionCaught(cause);
         } finally {
-            proxy2ServerCtx.pipeline().fireExceptionCaught(cause);
+            request.release();
+            client2ProxyCtx.close();
         }
     }
 

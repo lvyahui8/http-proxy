@@ -9,8 +9,12 @@ public interface MsgCode {
 
     String SUCCESS = "0";
 
+    String E_ENTITY_NOT_FOUND = "4004";
+
     String E_HEAD_ATTACK = "5010";
 
-    String E_THD_TIMEOUT = "7000";
-    String E_ENTITY_NOT_FOUND = "4004";
+    String E_THD_CONNECT_TIMEOUT = "7000";
+
+    String E_THD_CONNECT_FAILED = "7001";
+
 }

@@ -40,7 +40,7 @@ public class TestClientApp
     private static final Logger  logger = LoggerFactory.getLogger(TestClientApp.class);
 
     public static void main( String[] args ) throws InterruptedException, IOException {
-        final int nThread = 2000, nRequestInThread = 10000;
+        final int nThread = 50, nRequestInThread = 1000;
         final AtomicInteger cnt = new AtomicInteger(0);
         final ExecutorService executorService = Executors.newFixedThreadPool(nThread);
         final CountDownLatch threadLatch = new CountDownLatch(nThread * nRequestInThread);
