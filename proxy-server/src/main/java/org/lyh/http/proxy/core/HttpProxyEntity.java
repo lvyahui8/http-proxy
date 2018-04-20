@@ -1,4 +1,4 @@
-package org.lyh.http.proxy;
+package org.lyh.http.proxy.core;
 
 /**
  * 一个标准的http协议地址格式：

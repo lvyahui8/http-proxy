@@ -1,4 +1,4 @@
-package org.lyh.http.proxy;
+package org.lyh.http.proxy.core;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -6,6 +6,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
+import org.lyh.http.proxy.filter.ProxyResponseFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

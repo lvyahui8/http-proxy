@@ -6,6 +6,9 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LoggingHandler;
+import org.lyh.http.proxy.core.ClientToProxyChannelInitializer;
+import org.lyh.http.proxy.core.EntitysManager;
+import org.lyh.http.proxy.core.EventLoopGroupMannager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,4 +1,4 @@
-package org.lyh.http.proxy;
+package org.lyh.http.proxy.msg;
 
 /**
  * @author lvyahui (lvyahui8@gmail.com,lvyahui8@126.com)

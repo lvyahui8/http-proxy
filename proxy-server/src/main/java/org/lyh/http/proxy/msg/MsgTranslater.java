@@ -1,4 +1,4 @@
-package org.lyh.http.proxy;
+package org.lyh.http.proxy.msg;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;

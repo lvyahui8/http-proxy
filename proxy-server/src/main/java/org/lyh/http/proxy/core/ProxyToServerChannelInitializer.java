@@ -1,4 +1,4 @@
-package org.lyh.http.proxy;
+package org.lyh.http.proxy.core;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
@@ -6,6 +6,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
+import org.lyh.http.proxy.filter.DefaultProxyResponseFilter;
+import org.lyh.http.proxy.filter.ProxyResponseFilter;
 
 /**
  * 从代理平台到服务端的通道初始化类

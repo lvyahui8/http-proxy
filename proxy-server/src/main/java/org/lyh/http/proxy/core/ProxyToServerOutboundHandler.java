@@ -1,4 +1,4 @@
-package org.lyh.http.proxy;
+package org.lyh.http.proxy.core;
 
 import io.netty.channel.*;
 import org.slf4j.Logger;

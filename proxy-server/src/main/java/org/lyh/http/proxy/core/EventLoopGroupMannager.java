@@ -1,8 +1,9 @@
-package org.lyh.http.proxy;
+package org.lyh.http.proxy.core;
 
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import org.lyh.http.proxy.HttpProxyServer;
 
 /**
  * @author lvyahui (lvyahui8@gmail.com,lvyahui8@126.com)

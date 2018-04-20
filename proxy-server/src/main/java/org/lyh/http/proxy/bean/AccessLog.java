@@ -1,7 +1,8 @@
-package org.lyh.http.proxy;
+package org.lyh.http.proxy.bean;
 
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
+import org.lyh.http.proxy.core.HttpProxyEntity;
 
 /**
  * @author lvyahui (lvyahui8@gmail.com,lvyahui8@126.com)

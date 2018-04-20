@@ -1,4 +1,6 @@
-package org.lyh.http.proxy;
+package org.lyh.http.proxy.bean;
+
+import org.lyh.http.proxy.msg.MsgTranslater;
 
 /**
  * 定义全局异常类

@@ -1,4 +1,4 @@
-package org.lyh.http.proxy;
+package org.lyh.http.proxy.core;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
