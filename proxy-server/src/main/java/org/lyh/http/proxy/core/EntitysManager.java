@@ -14,7 +14,7 @@ import java.util.Map;
  * @author lvyahui (lvyahui8@gmail.com,lvyahui8@126.com)
  * @since 2018/3/29 17:27
  */
-public class EntitysManager {
+final public class EntitysManager {
 
     public static final Logger logger = LoggerFactory.getLogger(EntitysManager.class);
 
@@ -82,6 +82,12 @@ public class EntitysManager {
             instance = new EntitysManager();
         }
         return instance;
+    }
+
+    public static void init(){
+        if (instance == null){
+            instance = new EntitysManager();
+        }
     }
 
     private void loadFromEntitysJsonFile(InputStream stream){

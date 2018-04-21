@@ -27,7 +27,8 @@ public class HttpProxyServer {
 
     public static void main(String[] args) throws InterruptedException {
 
-        logger.info("entitys {}",EntitysManager.getInstance());
+        EntitysManager.init();
+
         isWindows = System.getProperty("os.name").toLowerCase().startsWith("win");
 
         try{
