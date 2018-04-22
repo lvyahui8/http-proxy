@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="error" monitorInterval="30">
+    <Properties>
+        <Property name="logPattern">%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{1.} - %msg%n</Property>
+    </Properties>
+    <!--先定义所有的appender-->
+    <Appenders>
+        <!--这个输出控制台的配置-->
+        <Console name="Console" target="SYSTEM_OUT">
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="${logPattern}"/>
+        </Console>
+        <!-- 这个会打印出所有的信息，每次大小超过size，则这size大小的日志会自动存入按年份-月份建立的文件夹下面并进行压缩，作为存档-->
+        <RollingFile name="RollingFile" fileName="logs/proxy.log"
+                     filePattern="logs/$${date:yyyy-MM}/proxy-%d{MM-dd-yyyy}-%i.log.gz">
+            <PatternLayout pattern="${logPattern}"/>
+            <SizeBasedTriggeringPolicy size="50MB"/>
+            <DefaultRolloverStrategy max="20"/>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <!--建立一个默认的root的logger-->
+        <Root level="trace">
+            <Appender-ref ref="RollingFile"/>
+            <appender-ref ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>

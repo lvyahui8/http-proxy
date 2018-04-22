@@ -6,6 +6,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.lyh.http.proxy.filter.ProxyResponseFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import java.util.List;
 public class ProxyToServerInboundHandler extends SimpleChannelInboundHandler<FullHttpResponse> {
 
     private static final Logger logger = LoggerFactory.getLogger(ProxyToServerInboundHandler.class);
+    private static final String REMOTE_STATUS = "Remote-Status";
 
     private final ChannelHandlerContext client2ProxyCtx;
 
@@ -51,6 +53,10 @@ public class ProxyToServerInboundHandler extends SimpleChannelInboundHandler<Ful
         try {
             for (ProxyResponseFilter filter : this.responseFilters){
                 response = filter.filter(request,response);
+            }
+            if(response.status() != HttpResponseStatus.OK){
+                response.headers().set(REMOTE_STATUS,response.status().code());
+                response.setStatus(HttpResponseStatus.OK);
             }
             client2ProxyCtx.channel().writeAndFlush(response.retain()).addListener(ChannelFutureListener.CLOSE);
         } finally {

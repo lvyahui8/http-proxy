@@ -5,6 +5,11 @@
         "targetUri": "127.0.0.1:10024/test/get"
     },
     {
+        "inboundPath": "/app/test/post",
+        "method": "post",
+        "targetUri": "127.0.0.1:10024/test/post"
+    },
+    {
         "inboundPath": "/movesun/index",
         "method": "get",
         "targetUri": "movesun.com/"

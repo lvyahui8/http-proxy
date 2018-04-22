@@ -39,8 +39,8 @@ public class TesetServerMain {
         resourceConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING , Boolean.TRUE);
         HttpServer httpServer = GrizzlyServerFactory.createHttpServer(BASE_URI, resourceConfig);
         ThreadPoolConfig threadConfig = ThreadPoolConfig.defaultConfig().setPoolName("test-server-worker-thread")
-                .setCorePoolSize(200)
-                .setMaxPoolSize(200);
+                .setCorePoolSize(10)
+                .setMaxPoolSize(10);
         GrizzlyExecutorService workerThreadPool = (GrizzlyExecutorService ) httpServer.getListeners()
                 .iterator().next().getTransport().getWorkerThreadPool();
         workerThreadPool.reconfigure(threadConfig);

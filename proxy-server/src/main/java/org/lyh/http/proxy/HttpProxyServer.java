@@ -25,6 +25,11 @@ public class HttpProxyServer {
 
     public static boolean isWindows;
 
+    static {
+        // -Dlog4j2.contextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
+        //System.setProperty("log4j2.contextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
+    }
+
     public static void main(String[] args) throws InterruptedException {
 
         EntitysManager.init();
