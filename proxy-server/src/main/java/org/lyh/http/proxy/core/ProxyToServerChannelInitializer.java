@@ -17,14 +17,14 @@ import org.lyh.http.proxy.filter.ProxyResponseFilter;
 public class ProxyToServerChannelInitializer extends ChannelInitializer<SocketChannel> {
 
 
-    private final ChannelHandlerContext ctx;
+    private final ChannelHandlerContext client2ProxyCtx;
 
     private static ProxyResponseFilter responseFilter = new DefaultProxyResponseFilter();
 
     private FullHttpRequest request;
 
-    public ProxyToServerChannelInitializer(ChannelHandlerContext ctx, FullHttpRequest request) {
-        this.ctx = ctx;
+    public ProxyToServerChannelInitializer(ChannelHandlerContext client2ProxyCtx, FullHttpRequest request) {
+        this.client2ProxyCtx = client2ProxyCtx;
         this.request = request;
     }
 
@@ -37,9 +37,9 @@ public class ProxyToServerChannelInitializer extends ChannelInitializer<SocketCh
         ch.pipeline().addLast("proxyToServerOutboundHandler",toServerOutboundHandler);
         ch.pipeline().addLast("http-codec",new HttpClientCodec());
         ch.pipeline().addLast("http-aggregator",new HttpObjectAggregator(1024 * 1024));
-        ProxyToServerInboundHandler toServerInboundHandler = new ProxyToServerInboundHandler(ctx, request);
+        ProxyToServerInboundHandler toServerInboundHandler = new ProxyToServerInboundHandler(client2ProxyCtx, request);
         toServerInboundHandler.addFilter(responseFilter);
         ch.pipeline().addLast("proxyToServerInboundHandler",toServerInboundHandler);
-        ch.pipeline().addLast("globalExceptionHandler",new GlobalExceptionHandler(ctx.channel()));
+        ch.pipeline().addLast("globalExceptionHandler",new GlobalExceptionHandler(client2ProxyCtx.channel()));
     }
 }

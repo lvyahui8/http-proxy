@@ -44,8 +44,10 @@ public class HttpProxyServer {
                     .handler(new LoggingHandler())
                     .childHandler(new ClientToProxyChannelInitializer());
 
-            ChannelFuture future = bootstrap.bind(PORT).sync();
-            future.channel().closeFuture().sync();
+            ChannelFuture future = bootstrap.bind(PORT);
+            ChannelFuture close = future.channel().closeFuture();
+            logger.info("started proxy server on {}",PORT);
+            close.sync();
         } finally {
             EntitysManager.getInstance().stopWatchThread();
             EventLoopGroupMannager.shutdownGracefully();

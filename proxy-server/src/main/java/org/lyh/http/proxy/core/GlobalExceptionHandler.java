@@ -5,6 +5,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
+import org.lyh.http.proxy.IgnoreException;
 import org.lyh.http.proxy.msg.MsgCode;
 import org.lyh.http.proxy.bean.StandardException;
 import org.lyh.http.proxy.msg.StandardResponse;
@@ -33,15 +34,15 @@ public class GlobalExceptionHandler extends ChannelHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.info("Remote address: {}",ctx.channel().remoteAddress());
-        logger.error("Exception :",cause);
+        if(!(cause instanceof IgnoreException)){
+            logger.error("Exception :",cause);
+        }
         if(!(cause instanceof Error)){
             StandardResponse standardResponse = buildResponse(cause);
             writeToClienChannel(clientChannel, standardResponse);
         } else {
             ctx.close();
         }
-
     }
 
     private void writeToClienChannel(Channel channel, StandardResponse standardResponse) {

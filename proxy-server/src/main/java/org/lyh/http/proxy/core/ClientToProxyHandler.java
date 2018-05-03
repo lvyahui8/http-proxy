@@ -36,16 +36,16 @@ public class ClientToProxyHandler extends SimpleChannelInboundHandler<FullHttpRe
 
     private static EntitysManager entitysManager =  EntitysManager.getInstance();
 
-    private  Bootstrap clientBootstrap;
+    private  Bootstrap proxy2ServerBootstrap;
 
     private List<ProxyRequestFilter> requestFilters;
 
     public ClientToProxyHandler() {
-        clientBootstrap = new Bootstrap();
+        proxy2ServerBootstrap = new Bootstrap();
 
-        clientBootstrap.group(EventLoopGroupMannager.getWorkerGroup())
+        proxy2ServerBootstrap.group(EventLoopGroupMannager.getWorkerGroup())
                 .channel(HttpProxyServer.isWindows ? NioSocketChannel.class : EpollSocketChannel.class);
-        clientBootstrap.option(ChannelOption.TCP_NODELAY,true);
+        proxy2ServerBootstrap.option(ChannelOption.TCP_NODELAY,true);
 
         requestFilters  = new ArrayList<>();
     }
@@ -55,29 +55,29 @@ public class ClientToProxyHandler extends SimpleChannelInboundHandler<FullHttpRe
         return this;
     }
 
-    protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
-        URI uri = new URI(msg.uri());
-        HttpProxyEntity entity = entitysManager.getEntity(uri.getPath(),msg.method().name());
+    protected void channelRead0(ChannelHandlerContext clientChannelCtx, FullHttpRequest clientRequestMsg) throws Exception {
+        URI uri = new URI(clientRequestMsg.uri());
+        HttpProxyEntity entity = entitysManager.getEntity(uri.getPath(),clientRequestMsg.method().name());
         if(entity != null && entity.getTargetUri() != null
                 && entity.getTargetUri().trim().length() > 0){
 
             for (ProxyRequestFilter proxyRequestFilter : requestFilters){
-                msg = proxyRequestFilter.filter(msg);
+                clientRequestMsg = proxyRequestFilter.filter(clientRequestMsg);
             }
 
             /* 找到可代理的对象 */
             URL targetUrl = new URL(entity.getTargetUri().startsWith("http://")
                     ? entity.getTargetUri() : HTTP_PROTOCOL + entity.getTargetUri());
 
-            msg.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE);
-            msg.headers().set(HttpHeaderNames.HOST,
+            clientRequestMsg.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE);
+            clientRequestMsg.headers().set(HttpHeaderNames.HOST,
                     targetUrl.getPort() < 0 ? targetUrl.getHost() : targetUrl.getHost() + ":" + targetUrl.getPort() );
-            msg.setUri(targetUrl.getPath());
+            clientRequestMsg.setUri(targetUrl.getPath());
 
-            clientBootstrap.handler(new ProxyToServerChannelInitializer(ctx,msg.copy()));
-            clientBootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS,DEFAULT_CONNECT_TIMEOUT);
+            proxy2ServerBootstrap.handler(new ProxyToServerChannelInitializer(clientChannelCtx,clientRequestMsg.copy()));
+            proxy2ServerBootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS,DEFAULT_CONNECT_TIMEOUT);
             /* 触发客户端的出站操作，依次是connect -> write -> read -> close */
-            clientBootstrap.connect(targetUrl.getHost(), targetUrl.getPort() < 0 ? 80 : targetUrl.getPort());
+            proxy2ServerBootstrap.connect(targetUrl.getHost(), targetUrl.getPort() < 0 ? 80 : targetUrl.getPort());
         } else {
             throw new StandardException(MsgCode.E_ENTITY_NOT_FOUND);
         }

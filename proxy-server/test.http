@@ -20,3 +20,8 @@ GET http://127.0.0.1:7987/xxxxxx
 
 ###
 
+# POST测试
+POST http://127.0.0.1:7987/app/test/post
+
+###
+
