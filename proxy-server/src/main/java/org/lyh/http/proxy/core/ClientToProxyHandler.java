@@ -76,8 +76,12 @@ public class ClientToProxyHandler extends SimpleChannelInboundHandler<FullHttpRe
 
             proxy2ServerBootstrap.handler(new ProxyToServerChannelInitializer(clientChannelCtx,clientRequestMsg.copy()));
             proxy2ServerBootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS,DEFAULT_CONNECT_TIMEOUT);
+            int svrPort = targetUrl.getPort() < 0 ? 80 : targetUrl.getPort();
+            if (logger.isDebugEnabled()){
+                logger.debug("connect to {}:{}",targetUrl.getHost(),svrPort);
+            }
             /* 触发客户端的出站操作，依次是connect -> write -> read -> close */
-            proxy2ServerBootstrap.connect(targetUrl.getHost(), targetUrl.getPort() < 0 ? 80 : targetUrl.getPort());
+            proxy2ServerBootstrap.connect(targetUrl.getHost(), svrPort);
         } else {
             throw new StandardException(MsgCode.E_ENTITY_NOT_FOUND);
         }

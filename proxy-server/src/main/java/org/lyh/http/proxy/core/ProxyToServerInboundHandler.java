@@ -11,6 +11,7 @@ import org.lyh.http.proxy.filter.ProxyResponseFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,11 +38,19 @@ public class ProxyToServerInboundHandler extends SimpleChannelInboundHandler<Ful
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+
+        if(logger.isDebugEnabled()){
+            logger.debug("uri: {}",request.uri());
+            logger.debug("modified request headers: {}",request.headers());
+            logger.debug("modified request body: {}",request.content().toString(Charset.defaultCharset()));
+        }
+
         /*
         * 与服务端的连接channel以建立并初始化完成，可以发送请求，此时，
         * 消息将沿着客户端的出站链移动，直到送达真正的服务端
         * */
         ChannelFuture future = ctx.channel().writeAndFlush(request.retain());
+
         /*
         * 这行Listener代码也可以在ProxyToServerOutboundHandler@write中的promise添加
         * */
@@ -57,6 +66,11 @@ public class ProxyToServerInboundHandler extends SimpleChannelInboundHandler<Ful
             if(response.status() != HttpResponseStatus.OK){
                 response.headers().set(REMOTE_STATUS,response.status().code());
                 response.setStatus(HttpResponseStatus.OK);
+            }
+            if(logger.isDebugEnabled()){
+                logger.debug("server response code: {}",response.status().code());
+                logger.debug("server response headers: {}",response.headers());
+                logger.debug("server response body: {}",response.content().toString(Charset.defaultCharset()));
             }
             client2ProxyCtx.channel().writeAndFlush(response.retain()).addListener(ChannelFutureListener.CLOSE);
         } finally {

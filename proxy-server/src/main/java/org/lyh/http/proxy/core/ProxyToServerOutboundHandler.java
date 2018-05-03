@@ -24,6 +24,7 @@ public class ProxyToServerOutboundHandler extends ChannelOutboundHandlerAdapter 
                     ctx.fireExceptionCaught(channelFuture.cause());
                 } else {
                      /* 可以在此时发出写请求，也可以在ProxyToServerInboundHandler@channelActive 时发送请求*/
+                    logger.debug("with {} connected",remoteAddress);
                     //ctx.channel().writeAndFlush(request.retain());
                 }
             }
