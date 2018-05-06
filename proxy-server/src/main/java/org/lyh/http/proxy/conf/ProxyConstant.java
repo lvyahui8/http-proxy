@@ -7,4 +7,7 @@ package org.lyh.http.proxy.conf;
 public class ProxyConstant {
     public static final int MAX_DATA_LENGTH  = 30 * 1024 ; // (byte)
     public static final String TOO_LONG_DATA = "";
+
+    public static final String STR_TRUE = "true";
+    public static final String STR_FALSE = "false";
 }

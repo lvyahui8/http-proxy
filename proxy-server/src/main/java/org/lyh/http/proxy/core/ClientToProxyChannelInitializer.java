@@ -14,16 +14,23 @@ import org.lyh.http.proxy.filter.AttackRequestFilter;
  */
 public class ClientToProxyChannelInitializer extends ChannelInitializer<SocketChannel> {
 
+    public static final String FILE_CODEC = "file-codec";
+    public static final String HTTP_DECODER = "http-decoder";
+    public static final String HTTP_AGGREGATOR = "http-aggregator";
+    public static final String CLIENT_TO_PROXY_HANDLER = "clientToProxyHandler";
+    public static final String GLOBAL_EXCEPTION_HANDLER = "globalExceptionHandler";
+    public static final String HTTP_ENCODER = "http-encoder";
+
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
         //ch.pipeline().addLast("http-codec",new HttpServerCodec());
-        ch.pipeline().addLast("http-decoder",new HttpRequestDecoder());
-        ch.pipeline().addLast("file-chunk",new FileChunkAggregator());
-        ch.pipeline().addLast("http-aggregator",new HttpObjectAggregator(1024 * 1024 * 1024));
+        ch.pipeline().addLast(HTTP_DECODER,new HttpRequestDecoder());
+        ch.pipeline().addLast(FILE_CODEC,new FileCodec());
+        ch.pipeline().addLast(HTTP_AGGREGATOR,new HttpObjectAggregator(1024 * 1024 * 1024));
         ClientToProxyHandler clientToProxyHandler = new ClientToProxyHandler();
         clientToProxyHandler.addFilter(new AttackRequestFilter());
-        ch.pipeline().addLast("clientToProxyHandler",clientToProxyHandler);
-        ch.pipeline().addLast("globalExceptionHandler",new GlobalExceptionHandler(ch));
-        ch.pipeline().addLast("http-encoder",new HttpResponseEncoder());
+        ch.pipeline().addLast(CLIENT_TO_PROXY_HANDLER,clientToProxyHandler);
+        ch.pipeline().addLast(GLOBAL_EXCEPTION_HANDLER,new GlobalExceptionHandler(ch));
+        ch.pipeline().addLast(HTTP_ENCODER,new HttpResponseEncoder());
     }
 }

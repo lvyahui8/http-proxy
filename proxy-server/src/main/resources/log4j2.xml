@@ -19,7 +19,7 @@
         </RollingFile>
     </Appenders>
     <Loggers>
-        <Logger name="io.netty" level="info">
+        <Logger name="io.netty" level="debug">
             <Appender-ref ref="RollingFile"/>
             <Appender-ref ref="Console"/>
         </Logger>
