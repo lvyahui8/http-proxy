@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.net.URI;
 
 
-public class TesetServerMain {
+public class TestServerMain {
 
     private static int getPort(int defaultPort) {
         String httpPort = System.getProperty("jersey.test.port");

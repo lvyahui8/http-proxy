@@ -9,13 +9,13 @@ import com.sun.jersey.api.client.WebResource;
 import junit.framework.TestCase;
 
 
-public class TesetServerMainTest extends TestCase {
+public class TestServerMainTest extends TestCase {
 
     private HttpServer httpServer;
     
     private WebResource r;
 
-    public TesetServerMainTest(String testName) {
+    public TestServerMainTest(String testName) {
         super(testName);
     }
 
@@ -24,11 +24,11 @@ public class TesetServerMainTest extends TestCase {
         super.setUp();
         
         //start the Grizzly2 web container 
-        httpServer = TesetServerMain.startServer();
+        httpServer = TestServerMain.startServer();
 
         // create the client
         Client c = Client.create();
-        r = c.resource(TesetServerMain.BASE_URI);
+        r = c.resource(TestServerMain.BASE_URI);
     }
 
     @Override
