@@ -7,6 +7,7 @@ import com.sun.jersey.spi.container.ContainerResponseFilter;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import java.io.File;
 
 /**
  * @author lvyahui (lvyahui8@gmail.com,lvyahui8@126.com)
@@ -23,14 +24,17 @@ public class IOFilter implements ContainerRequestFilter,ContainerResponseFilter 
     @Override
     public ContainerResponse filter(ContainerRequest containerRequest, ContainerResponse containerResponse) {
         Object entity = containerResponse.getEntity();
-        containerResponse.getHttpHeaders().putSingle(HttpHeaders.CONTENT_TYPE,MediaType.APPLICATION_JSON);
-        if(!(entity instanceof Answer)){
-            Answer answer = new Answer();
-            answer.setCode(0);
-            answer.setMsg("");
-            answer.setData(entity);
-            containerResponse.setEntity(answer);
+        if(!(entity instanceof File)){
+            containerResponse.getHttpHeaders().putSingle(HttpHeaders.CONTENT_TYPE,MediaType.APPLICATION_JSON);
+            if(!(entity instanceof Answer)){
+                Answer answer = new Answer();
+                answer.setCode(0);
+                answer.setMsg("");
+                answer.setData(entity);
+                containerResponse.setEntity(answer);
+            }
         }
+
         return containerResponse;
     }
 }

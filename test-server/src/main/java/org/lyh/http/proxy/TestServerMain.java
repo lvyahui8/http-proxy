@@ -36,6 +36,7 @@ public class TestServerMain {
     protected static HttpServer startServer() throws IOException {
         ResourceConfig resourceConfig = new PackagesResourceConfig("org.lyh.http.proxy");
         resourceConfig.getContainerResponseFilters().add(new IOFilter());
+
         resourceConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING , Boolean.TRUE);
         HttpServer httpServer = GrizzlyServerFactory.createHttpServer(BASE_URI, resourceConfig);
         ThreadPoolConfig threadConfig = ThreadPoolConfig.defaultConfig().setPoolName("test-server-worker-thread")

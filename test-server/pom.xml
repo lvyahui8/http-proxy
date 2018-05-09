@@ -57,6 +57,11 @@
             <version>${jersey-version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.sun.jersey.contribs</groupId>
+            <artifactId>jersey-multipart</artifactId>
+            <version>${jersey-version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
