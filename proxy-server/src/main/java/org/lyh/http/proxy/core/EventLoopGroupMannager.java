@@ -11,8 +11,16 @@ import org.lyh.http.proxy.HttpProxyServer;
  * @since 2018/4/14 21:24
  */
 final public class EventLoopGroupMannager {
+    private static final Runnable EMPTY_TASK = new Runnable() {
+        @Override
+        public void run() {
+        }
+    };
+
     static EventLoopGroup masterGroup;
     static EventLoopGroup workerGroup;
+
+    public static final int MASTER_THREAD_CNT = 4;
 
     private EventLoopGroupMannager(){
 
@@ -24,11 +32,18 @@ final public class EventLoopGroupMannager {
         DefaultThreadFactory workerThreadFactory = new DefaultThreadFactory("proxy-worker", false);
         int availableProcessors = Runtime.getRuntime().availableProcessors();
         if(HttpProxyServer.isWindows){
-            masterGroup = new NioEventLoopGroup(1,masterThreadFactory);
+            masterGroup = new NioEventLoopGroup(MASTER_THREAD_CNT,masterThreadFactory);
             workerGroup = new NioEventLoopGroup(availableProcessors,workerThreadFactory);
         } else {
-            masterGroup = new EpollEventLoopGroup(1,masterThreadFactory);
+            masterGroup = new EpollEventLoopGroup(MASTER_THREAD_CNT,masterThreadFactory);
             workerGroup = new EpollEventLoopGroup(availableProcessors,workerThreadFactory);
+        }
+        initWorkerThreads(availableProcessors);
+    }
+
+    private static void initWorkerThreads(int workerThreadCnt) {
+        for (int i = 0 ; i < workerThreadCnt; i ++){
+            workerGroup.next().submit(EMPTY_TASK);
         }
     }
 
