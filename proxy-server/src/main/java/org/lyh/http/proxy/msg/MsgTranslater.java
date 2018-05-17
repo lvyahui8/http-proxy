@@ -1,8 +1,8 @@
 package org.lyh.http.proxy.msg;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Properties;
+
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
 
 /**
  * @author lvyahui (lvyahui8@gmail.com,lvyahui8@126.com)
@@ -10,30 +10,27 @@ import java.util.Properties;
  */
 public class MsgTranslater {
     private static final String MSG_FILE = "msg.properties";
-    private static final Properties MSG ;
+    private static final PropertiesConfiguration MSG ;
     private static final String DEFAULT_MSG = "unkown";
 
     static  {
-        MSG = loadProperties(MSG_FILE);
+        MSG = loadProperties();
     }
 
-    private static Properties loadProperties(String msgFile) {
-        Properties properties = new Properties();
+    private static PropertiesConfiguration loadProperties() {
+        PropertiesConfiguration configuration ;
         try {
-            InputStream resourceAsStream = null;
-            resourceAsStream = MsgTranslater.class.getClassLoader().getResourceAsStream(MSG_FILE);
-
-            try (InputStreamReader input = new InputStreamReader(resourceAsStream, "UTF-8")) {
-                properties.load(input);
-            }
+            configuration = new PropertiesConfiguration(MSG_FILE);
+            configuration.setReloadingStrategy(new FileChangedReloadingStrategy());
         } catch (Throwable e) {
             // 不处理
+            configuration = new PropertiesConfiguration();
         }
-        return properties;
+        return configuration;
     }
 
     public static String getMsg(String msgCode){
-        return MSG.containsKey(msgCode) ? MSG.getProperty(msgCode) : DEFAULT_MSG;
+        return MSG.containsKey(msgCode) ? MSG.getString(msgCode) : DEFAULT_MSG;
     }
 
 }
