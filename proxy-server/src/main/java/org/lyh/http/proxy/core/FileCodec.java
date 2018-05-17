@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.channels.FileChannel;
 import java.util.List;
 
 /**
@@ -22,6 +23,8 @@ public class FileCodec extends MessageToMessageDecoder<HttpObject> {
     public static final Logger logger = LoggerFactory.getLogger(FileCodec.class);
 
     private FileOutputStream fileOutputStream ;
+
+    private FileChannel fileChannel;
 
     private File file;
 

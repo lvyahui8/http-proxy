@@ -5,6 +5,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
+import org.lyh.http.proxy.conf.ProxyConstant;
 import org.lyh.http.proxy.filter.AttackRequestFilter;
 
 
@@ -26,7 +27,7 @@ public class ClientToProxyChannelInitializer extends ChannelInitializer<SocketCh
         //ch.pipeline().addLast("http-codec",new HttpServerCodec());
         ch.pipeline().addLast(HTTP_DECODER,new HttpRequestDecoder());
         ch.pipeline().addLast(FILE_CODEC,new FileCodec());
-        ch.pipeline().addLast(HTTP_AGGREGATOR,new HttpObjectAggregator(1024 * 1024 * 1024));
+        ch.pipeline().addLast(HTTP_AGGREGATOR,new HttpObjectAggregator(ProxyConstant.MAX_BODY_LENGTH));
         ClientToProxyHandler clientToProxyHandler = new ClientToProxyHandler();
         clientToProxyHandler.addFilter(new AttackRequestFilter());
         ch.pipeline().addLast(CLIENT_TO_PROXY_HANDLER,clientToProxyHandler);

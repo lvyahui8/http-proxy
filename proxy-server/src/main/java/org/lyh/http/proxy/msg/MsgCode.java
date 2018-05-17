@@ -18,4 +18,5 @@ public interface MsgCode {
     String E_THD_CONNECT_FAILED = "7001";
 
     String E_THD_SVR_INSIDE_CLOSED = "7002";
+    String E_THD_READ_TIMEOUT = "7003";
 }

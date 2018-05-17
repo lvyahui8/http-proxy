@@ -10,4 +10,6 @@ public class ProxyConstant {
 
     public static final String STR_TRUE = "true";
     public static final String STR_FALSE = "false";
+    public static final long READ_TIMEOUT = 60 * 1000;
+    public static final int MAX_BODY_LENGTH = 1024 * 1024 * 1024;
 }

@@ -1,6 +1,4 @@
-package org.lyh.http.proxy;
-
-import org.lyh.http.proxy.bean.StandardException;
+package org.lyh.http.proxy.exception;
 
 /**
  * @author lvyahui (lvyahui8@gmail.com,lvyahui8@126.com)

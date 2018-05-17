@@ -7,10 +7,13 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import org.lyh.http.proxy.exception.IgnoreException;
 import org.lyh.http.proxy.filter.ProxyResponseFilter;
+import org.lyh.http.proxy.msg.MsgCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +33,9 @@ public class ProxyToServerInboundHandler extends SimpleChannelInboundHandler<Ful
 
     private List<ProxyResponseFilter> responseFilters ;
 
+    private boolean sended = false;
+    private boolean recved = false;
+
     public ProxyToServerInboundHandler(ChannelHandlerContext client2ProxyCtx, FullHttpRequest request) {
         this.client2ProxyCtx = client2ProxyCtx;
         this.request = request;
@@ -38,7 +44,6 @@ public class ProxyToServerInboundHandler extends SimpleChannelInboundHandler<Ful
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-
         if(logger.isDebugEnabled()){
             logger.debug("uri: {}",request.uri());
             logger.debug("modified request headers: {}",request.headers());
@@ -54,11 +59,19 @@ public class ProxyToServerInboundHandler extends SimpleChannelInboundHandler<Ful
         /*
         * 这行Listener代码也可以在ProxyToServerOutboundHandler@write中的promise添加
         * */
-        future.addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+        future.addListener(new ChannelFutureListener() {
+            public void operationComplete(ChannelFuture future) {
+                if (!future.isSuccess()) {
+                    future.channel().close();
+                }
+                sended = true;
+            }
+        });
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpResponse response) throws Exception {
+        recved = true;
         try {
             for (ProxyResponseFilter filter : this.responseFilters){
                 response = filter.filter(request,response);
@@ -80,6 +93,9 @@ public class ProxyToServerInboundHandler extends SimpleChannelInboundHandler<Ful
 
     @Override
     public void exceptionCaught(ChannelHandlerContext proxy2ServerCtx, Throwable cause) throws Exception {
+        if(sended && !recved && cause instanceof IOException){
+            cause = new IgnoreException(MsgCode.E_THD_SVR_INSIDE_CLOSED);
+        }
         try{
             proxy2ServerCtx.fireExceptionCaught(cause);
         } finally {

@@ -18,6 +18,11 @@ public class StandardResponse {
         this.msg = MsgTranslater.getMsg(code);
     }
 
+    public void setCode(String code,String msg){
+        this.code = code;
+        this.msg = msg;
+    }
+
     public String getMsg() {
         return msg;
     }

@@ -5,9 +5,12 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
-import org.lyh.http.proxy.IgnoreException;
+import io.netty.handler.timeout.ReadTimeoutException;
+import org.lyh.http.proxy.conf.ProxyConstant;
+import org.lyh.http.proxy.exception.IgnoreException;
+import org.lyh.http.proxy.exception.StandardException;
 import org.lyh.http.proxy.msg.MsgCode;
-import org.lyh.http.proxy.bean.StandardException;
+import org.lyh.http.proxy.msg.MsgTranslater;
 import org.lyh.http.proxy.msg.StandardResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +73,10 @@ public class GlobalExceptionHandler extends ChannelHandlerAdapter {
         }
         else if(cause instanceof ConnectException || cause instanceof NoRouteToHostException) {
             standardResponse.setCode(MsgCode.E_THD_CONNECT_FAILED);
+        } else if(cause instanceof ReadTimeoutException){
+            standardResponse.setCode(MsgCode.E_THD_READ_TIMEOUT,
+                    String.format(MsgTranslater.getMsg(MsgCode.E_THD_READ_TIMEOUT),
+                            "" + ProxyConstant.READ_TIMEOUT));
         }
         else {
             standardResponse.setCode(MsgCode.E_SYS_ERR);

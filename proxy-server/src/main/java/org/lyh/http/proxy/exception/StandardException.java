@@ -1,4 +1,4 @@
-package org.lyh.http.proxy.bean;
+package org.lyh.http.proxy.exception;
 
 import org.lyh.http.proxy.msg.MsgTranslater;
 
@@ -15,6 +15,12 @@ public class StandardException extends RuntimeException {
 
     public StandardException(String msgCode) {
         super(MsgTranslater.getMsg(msgCode));
+        this.msgCode = msgCode;
+    }
+
+    public StandardException(String msgCode,Object ... addons){
+        super((addons != null && addons.length > 0)
+                ? String.format(MsgTranslater.getMsg(msgCode),addons) : MsgTranslater.getMsg(msgCode));
         this.msgCode = msgCode;
     }
 
