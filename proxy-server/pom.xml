@@ -236,7 +236,7 @@
                     <execution>
                         <id>copy-resources</id>
                         <!-- 在default生命周期的 validate阶段就执行resources插件的copy-resources目标 -->
-                        <phase>validate</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>

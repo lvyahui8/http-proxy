@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="error" monitorInterval="30">
     <Properties>
-        <Property name="logPattern">%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level - %msg%n</Property>
+        <Property name="logPattern">%d{yy-MM-dd HH:mm:ss.SSS} [%19thread] %-5level - %msg%n</Property>
     </Properties>
     <!--先定义所有的appender-->
     <Appenders>
@@ -19,7 +19,7 @@
         </RollingFile>
     </Appenders>
     <Loggers>
-        <Logger name="io.netty" level="debug">
+        <Logger name="io.netty" level="info">
             <Appender-ref ref="RollingFile"/>
             <Appender-ref ref="Console"/>
         </Logger>

@@ -21,8 +21,6 @@ public class HttpProxyServer {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpProxyServer.class);
 
-    public static int PORT = 7987;
-
     public static boolean isWindows;
 
     static {
@@ -31,9 +29,8 @@ public class HttpProxyServer {
     }
 
     public static void main(String[] args) throws InterruptedException {
-
         EntitysManager.init();
-
+        int port = Integer.valueOf(System.getProperty("server.port","7987"));
         isWindows = System.getProperty("os.name").toLowerCase().startsWith("win");
 
         try{
@@ -44,9 +41,9 @@ public class HttpProxyServer {
                     .handler(new LoggingHandler())
                     .childHandler(new ClientToProxyChannelInitializer());
 
-            ChannelFuture future = bootstrap.bind(PORT);
+            ChannelFuture future = bootstrap.bind(port);
             ChannelFuture close = future.channel().closeFuture();
-            logger.info("started proxy server on {}",PORT);
+            logger.info("started proxy server on {}",port);
             close.sync();
         } finally {
             EntitysManager.getInstance().stopWatchThread();

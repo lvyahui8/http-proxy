@@ -1,0 +1,156 @@
+#!/usr/bin/env bash
+
+current_path=$(dirname $(which $0))
+
+cd "$current_path/"
+
+export LANG=zh_CN.UTF-8
+
+server_name="http-proxy"
+server_main_class="org.lyh.http.proxy.HttpProxyServer"
+server_port=7988
+server_vm_options="-server -XX:+UseG1GC -Xmx256m -Xms180m -Xmn64m -Dfile.encoding=utf8 -Dserver.port=$server_port"
+
+daemond=1
+enable_jmx=0
+jmx_port=9005
+enable_debug=0
+debug_port=443
+
+exec_backend(){
+    nohup $1 > /dev/null 2>&1 &
+}
+
+getpid(){
+    local pid=$(jps -mlv | grep ${server_main_class} | awk '{print $1}')
+    if [ "$pid" == "" ]; then
+        # pid=$(netstat -ntlp  | grep 7987 | awk '{print $NF}' | awk -F/ '{print $1}')
+        pid=$(ss -ntlp | grep 7987 | sed 's/.*pid=\([0-9]*\).*/\1/g' | sort | uniq)
+    fi
+    echo ${pid}
+}
+
+get_local_ip(){
+    # echo $(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
+    echo $(ip a | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
+}
+
+start_server(){
+    if [ ${enable_debug} -eq 1 ]; then
+        server_vm_options="$server_vm_options -agentlib:jdwp=transport=dt_socket,server=y,address=$debug_port,suspend=n"
+    fi
+
+    if [ ${enable_jmx} -eq 1 ]; then
+        server_vm_options="${server_vm_options} \
+-Dcom.sun.management.jmxremote.authenticate=false \
+-Dcom.sun.management.jmxremote.ssl=false \
+-Dcom.sun.management.jmxremote.local.only=false \
+-Dcom.sun.management.jmxremote.port=$jmx_port \
+-Djava.rmi.server.hostname=$(get_local_ip)"
+    fi
+
+    local command="java $server_vm_options -Djava.ext.dirs=./lib -classpath ./conf $server_main_class"
+    echo "$command"
+    if [ ${daemond} -eq 1 ]; then
+        exec_backend "${command}"
+        if [ $? -eq 0 ]; then
+            pid=$(getpid)
+            echo "started ${server_name} [${pid}]"
+        else
+            echo "start ${server_name} failed"
+        fi
+    else
+        ${command}
+    fi
+}
+
+stop_server(){
+    pid=$(getpid)
+    if [ "$pid" != "" ] ; then
+        kill -9 ${pid}
+        echo "stoped ${server_name} [${pid}]"
+    fi
+}
+
+init_server(){
+    mkdir "$current_path/logs"
+    chmod -R 777 "$current_path/logs"
+}
+
+read -r -d '' HELP << EOF
+Usage : $0 options operate
+
+Options:
+    -r      not backgourd
+    -j      enable jmx
+    -d      enable debug
+Commands:
+    init
+    start
+    stop
+    restart
+EOF
+
+OPTIND=1
+invalid_options=();
+while getopts "rjdh" opt; do
+    #echo "Actual opt: $opt"
+    case ${opt} in
+         r)
+            daemond=0
+            ;;
+         j)
+            enable_jmx=1
+            ;;
+         d)
+            enable_debug=1
+            ;;
+         h)
+            echo "$HELP"
+            exit 1
+            ;;
+        \?)
+            invalid_options+=($OPTARG)
+            ;;
+        *)
+            invalid_options+=($OPTARG)
+           ;;
+    esac
+done
+
+if [ ${#invalid_options[@]} -ne 0 ]; then
+    echo "Invalid option(s):" >&2
+    for i in "${invalid_options[@]}"; do
+          echo ${i} >&2
+    done
+    echo "" >&2
+    echo "$HELP" >&2
+    exit 1
+fi
+
+shift $((OPTIND - 1))
+
+# echo "daemond:            $daemond"
+# echo "enable_jmx:         $enable_jmx"
+# echo "enable_debug:       $enable_debug"
+# echo "operate:            $1"
+
+case $1 in
+    init)
+        init_server
+    ;;
+    start)
+        start_server
+    ;;
+    stop)
+        stop_server
+    ;;
+    restart)
+        stop_server
+        start_server
+    ;;
+    *)
+        echo "$HELP" >&2
+        exit 1
+    ;;
+esac
