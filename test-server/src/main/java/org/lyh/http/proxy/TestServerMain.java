@@ -28,7 +28,7 @@ public class TestServerMain {
     }
 
     private static URI getBaseURI() {
-        return UriBuilder.fromUri("http://localhost/").port(getPort(10024)).build();
+        return UriBuilder.fromUri("http://0.0.0.0/").port(getPort(10024)).build();
     }
 
     public static final URI BASE_URI = getBaseURI();

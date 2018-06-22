@@ -34,7 +34,12 @@ public class TestResource {
     }
 
     @GET @Path("/get4data")
-    public String get4data() {
+    public String get4data(@QueryParam("sleep") @DefaultValue("1") Integer sleep) {
+        try {
+            Thread.sleep(sleep);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return "Got it!";
     }
 
