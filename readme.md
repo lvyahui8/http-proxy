@@ -4,6 +4,8 @@
 
 High performance HTTP proxy services
 
+![API Proxy Platform Architecture](./api_platform_architecture.jpg "API Proxy Platform Architecture")
+
 ### 代理服务特性
 
 先说一下几个角色
